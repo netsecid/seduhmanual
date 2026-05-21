@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-dm-sans);
+}
+
+body {
+  background-color: #F8F3EC;
+  color: #1E0E08;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent iOS auto-zoom on inputs (must be 16px+ to avoid zoom) */
+input[type="number"],
+input[type="text"],
+select {
+  font-size: 16px;
+}
