@@ -143,6 +143,10 @@ export function buildExperimentalFromRecipe(
     processType: ProcessType;
     brewMode: import("@/lib/types").BrewMode;
     steps: ExperimentalStep[];
+    // Optional persisted user choices — when present, override the defaults
+    // we'd otherwise derive from process / a hard-coded ice weight.
+    temperature?: number;
+    iceWeight?: number;
   },
   overrideCoffeeWeight?: number
 ): ExperimentalInput {
@@ -155,11 +159,18 @@ export function buildExperimentalFromRecipe(
   return {
     coffeeWeight,
     totalWater,
-    temperature: getRecommendedTemp(recipe.processType),
+    // Honor the user's saved temperature if present; otherwise fall back to
+    // the per-process recommended temp.
+    temperature: recipe.temperature ?? getRecommendedTemp(recipe.processType),
     grindSize: recipe.grindSize,
     processType: recipe.processType,
     brewMode: recipe.brewMode,
-    iceWeight: Math.round(60 * scaleFactor),
+    // Honor saved iceWeight (scaled to current coffee weight); otherwise the
+    // legacy default of 60 g (also scaled).
+    iceWeight:
+      recipe.iceWeight !== undefined
+        ? Math.round(recipe.iceWeight * scaleFactor)
+        : Math.round(60 * scaleFactor),
     steps: recipe.steps.map((s) => ({
       ...s,
       id: crypto.randomUUID(),
