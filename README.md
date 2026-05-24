@@ -5,8 +5,11 @@ A V60 manual pour-over coffee brewing calculator and step-by-step timer, built a
 ## Features
 
 - **Brew calculator** — input coffee weight, ratio, grind size, process type, and brew mode (hot or ice brew) to get exact water amounts and recommended temperature
+- **Experimental mode** — override every parameter manually: bloom water, pour amounts, step durations, and temperature — no formula locking
 - **Step-by-step timer** — circular progress bar with audio alerts at each pour step (bloom → pour 1 → pour 2), ending with a "STOP — Angkat V60!" alert
+- **Featured recipes** — built-in recipes from James Hoffmann, Tetsu Kasuya, Scott Rao, Lance Hedrick, Onyx Coffee Lab, and the classic Japanese ice brew method
 - **Recipe library** — save and reload your favourite brew profiles, stored locally in the browser (no account needed)
+- **Export / Import** — back up your saved recipes as a JSON file and restore them on any device
 
 ## Stack
 
@@ -39,6 +42,16 @@ vercel --prod
 ```
 
 No environment variables are required.
+
+## Contributing
+
+Contributions are welcome! You can:
+
+- **Add a built-in recipe** for a famous brewer or method
+- **Propose or build new features** (brew log, grind guide, PWA, i18n, …)
+- **Fix bugs** or improve documentation
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines, the recipe object schema, and the PR checklist.
 
 ## Credits
 
