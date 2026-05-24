@@ -19,6 +19,8 @@ export default function RecipeCard({ recipe, onDelete, onLoad }: RecipeCardProps
       })
     : null;
 
+  const stepCount = recipe.steps?.length ?? recipe.customSteps?.length ?? null;
+
   return (
     <div className="bg-white rounded-2xl border border-[#D9CBC0] p-4 space-y-3">
       {/* Title row */}
@@ -28,17 +30,18 @@ export default function RecipeCard({ recipe, onDelete, onLoad }: RecipeCardProps
             <h3 className="font-display font-semibold text-[#1E0E08] leading-tight truncate">
               {recipe.name}
             </h3>
-            {recipe.isExperimental && (
+            {recipe.isExperimental && !recipe.isBuiltIn && (
               <span className="text-[10px] bg-[#1E0E08] text-[#F8F3EC] px-2 py-0.5 rounded-full font-medium tracking-wide flex-shrink-0">
-                Experimental
+                Custom
               </span>
             )}
           </div>
-          {recipe.author ? (
+          {recipe.author && (
             <p className="text-xs text-[#C4622D] mt-0.5 font-medium">by {recipe.author}</p>
-          ) : null}
+          )}
           <p className="text-sm text-[#A07060] mt-0.5 truncate">{recipe.beanName}</p>
         </div>
+
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {date && <span className="text-xs text-[#A07060]">{date}</span>}
           {recipe.notes && (
@@ -46,7 +49,7 @@ export default function RecipeCard({ recipe, onDelete, onLoad }: RecipeCardProps
               onClick={() => setShowNotes((v) => !v)}
               className="w-7 h-7 flex items-center justify-center rounded-full text-[#A07060] hover:bg-[#FBF0E9] hover:text-[#C4622D] transition-colors cursor-pointer text-sm"
               aria-label="Show recipe notes"
-              title="Notes"
+              title="Method notes"
             >
               {showNotes ? "✕" : "i"}
             </button>
@@ -77,6 +80,9 @@ export default function RecipeCard({ recipe, onDelete, onLoad }: RecipeCardProps
         <Tag>1:{recipe.ratio}</Tag>
         <Tag>{recipe.brewMode === "ice" ? "Ice Brew" : "Hot"}</Tag>
         {recipe.coffeeWeight ? <Tag>{recipe.coffeeWeight}g</Tag> : null}
+        {stepCount !== null && (
+          <Tag>{stepCount} step{stepCount !== 1 ? "s" : ""}</Tag>
+        )}
       </div>
 
       {/* Load button */}

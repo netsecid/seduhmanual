@@ -1,6 +1,7 @@
 "use client";
 
-import { ExperimentalInput, GrindSize, ProcessType } from "@/lib/types";
+import { ExperimentalInput, ExperimentalStep, GrindSize, ProcessType } from "@/lib/types";
+import { getStepStartSeconds } from "@/lib/calculations";
 import { COFFEE_PROCESSES } from "@/constants/coffeeData";
 
 interface ExperimentalFormProps {
@@ -18,15 +19,34 @@ const GRIND_SIZES: GrindSize[] = [
 ];
 
 export default function ExperimentalForm({ value, onChange }: ExperimentalFormProps) {
-  const upd = (partial: Partial<ExperimentalInput>) =>
-    onChange({ ...value, ...partial });
+  const upd = (partial: Partial<ExperimentalInput>) => onChange({ ...value, ...partial });
+
+  const updateStep = (index: number, partial: Partial<ExperimentalStep>) => {
+    const next = value.steps.map((s, i) => (i === index ? { ...s, ...partial } : s));
+    upd({ steps: next });
+  };
+
+  const addStep = () => {
+    const newStep: ExperimentalStep = {
+      id: crypto.randomUUID(),
+      name: `Pour ${value.steps.length}`,
+      waterAmount: 0,
+      duration: 45,
+    };
+    upd({ steps: [...value.steps, newStep] });
+  };
+
+  const removeStep = (index: number) => {
+    if (value.steps.length <= 1) return;
+    upd({ steps: value.steps.filter((_, i) => i !== index) });
+  };
 
   return (
     <div className="space-y-5">
       {/* Banner */}
       <div className="bg-[#1E0E08]/5 border border-[#1E0E08]/10 rounded-xl px-4 py-3 text-xs text-[#6B4B3E] leading-relaxed">
         <span className="font-semibold text-[#1E0E08]">Experimental mode</span> — every
-        parameter is yours to set. No calculations applied.
+        parameter is yours to set. Step start times auto-stack from each step's duration.
       </div>
 
       {/* Brew mode */}
@@ -51,7 +71,7 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
         </div>
       </div>
 
-      {/* Row: Coffee weight + Total water */}
+      {/* Coffee weight + Total water */}
       <div className="grid grid-cols-2 gap-3">
         <NumField
           label="Coffee Weight"
@@ -69,7 +89,7 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
         />
       </div>
 
-      {/* Ice weight — only in ice mode */}
+      {/* Ice weight */}
       {value.brewMode === "ice" && (
         <NumField
           label="Ice Weight"
@@ -90,43 +110,35 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
         onChange={(v) => upd({ temperature: v })}
       />
 
-      {/* Steps */}
+      {/* N-step list */}
       <div>
         <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-2">
           Brew Steps
         </label>
-        <div className="space-y-3">
-          {/* Bloom */}
-          <StepRow
-            label="Bloom"
-            stepNum={1}
-            water={value.bloomWater}
-            startSec={0}
-            endSec={value.bloomEnd}
-            onWater={(v) => upd({ bloomWater: v })}
-            onEnd={(v) => upd({ bloomEnd: v })}
-          />
-          {/* Pour 1 */}
-          <StepRow
-            label="Pour 1"
-            stepNum={2}
-            water={value.pour1Water}
-            startSec={value.bloomEnd}
-            endSec={value.pour1End}
-            onWater={(v) => upd({ pour1Water: v })}
-            onEnd={(v) => upd({ pour1End: v })}
-          />
-          {/* Pour 2 */}
-          <StepRow
-            label="Pour 2"
-            stepNum={3}
-            water={value.pour2Water}
-            startSec={value.pour1End}
-            endSec={value.pour2End}
-            onWater={(v) => upd({ pour2Water: v })}
-            onEnd={(v) => upd({ pour2End: v })}
-          />
+
+        <div className="space-y-2">
+          {value.steps.map((step, i) => {
+            const startSec = getStepStartSeconds(value.steps, i);
+            return (
+              <StepRow
+                key={step.id}
+                step={step}
+                index={i}
+                startSec={startSec}
+                canRemove={value.steps.length > 1}
+                onChange={(partial) => updateStep(i, partial)}
+                onRemove={() => removeStep(i)}
+              />
+            );
+          })}
         </div>
+
+        <button
+          onClick={addStep}
+          className="mt-3 w-full py-2.5 text-sm text-[#6B4B3E] border border-dashed border-[#D9CBC0] rounded-xl hover:bg-[#EDD9C8]/40 hover:border-[#C4622D]/40 transition-colors duration-150 cursor-pointer"
+        >
+          ＋ Add Step
+        </button>
       </div>
 
       {/* Grind & process */}
@@ -168,7 +180,96 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
   );
 }
 
-/* ── helpers ── */
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function StepRow({
+  step,
+  index,
+  startSec,
+  canRemove,
+  onChange,
+  onRemove,
+}: {
+  step: ExperimentalStep;
+  index: number;
+  startSec: number;
+  canRemove: boolean;
+  onChange: (p: Partial<ExperimentalStep>) => void;
+  onRemove: () => void;
+}) {
+  const endSec = startSec + step.duration;
+
+  const fmtTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m > 0 ? `${m}:${sec.toString().padStart(2, "0")}` : `${s}s`;
+  };
+
+  return (
+    <div className="border border-[#D9CBC0] rounded-xl p-3 bg-white space-y-2">
+      {/* Step header: number + name input + time range + remove */}
+      <div className="flex items-center gap-2">
+        <span className="w-5 h-5 rounded-full bg-[#C4622D] text-white text-xs flex items-center justify-center font-bold flex-shrink-0 select-none">
+          {index + 1}
+        </span>
+        <input
+          type="text"
+          value={step.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+          className="flex-1 min-w-0 text-sm font-semibold text-[#1E0E08] bg-transparent focus:outline-none focus:bg-[#FBF0E9] rounded px-1 -mx-1 transition-colors"
+          placeholder="Step name"
+          aria-label={`Step ${index + 1} name`}
+        />
+        <span className="text-xs text-[#A07060] tabular-nums flex-shrink-0">
+          {fmtTime(startSec)} → {fmtTime(endSec)}
+        </span>
+        {canRemove && (
+          <button
+            onClick={onRemove}
+            className="w-5 h-5 flex items-center justify-center text-[#C4622D]/40 hover:text-[#C4622D] hover:bg-[#FBF0E9] rounded-full transition-colors cursor-pointer flex-shrink-0 text-xs"
+            aria-label={`Remove step ${index + 1}`}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Water + Duration inputs */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="relative">
+          <input
+            type="number"
+            inputMode="decimal"
+            value={step.waterAmount}
+            min={0}
+            onChange={(e) => onChange({ waterAmount: Number(e.target.value) })}
+            className="w-full border border-[#D9CBC0] rounded-lg px-3 py-2 pr-9 text-[#1E0E08] bg-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
+            placeholder="Water"
+            aria-label={`Step ${index + 1} water amount`}
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A07060] pointer-events-none">
+            ml
+          </span>
+        </div>
+        <div className="relative">
+          <input
+            type="number"
+            inputMode="decimal"
+            value={step.duration}
+            min={1}
+            onChange={(e) => onChange({ duration: Math.max(1, Number(e.target.value)) })}
+            className="w-full border border-[#D9CBC0] rounded-lg px-3 py-2 pr-9 text-[#1E0E08] bg-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
+            placeholder="Duration"
+            aria-label={`Step ${index + 1} duration`}
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A07060] pointer-events-none">
+            s
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function NumField({
   label,
@@ -203,74 +304,6 @@ function NumField({
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#6B4B3E] pointer-events-none">
           {unit}
         </span>
-      </div>
-    </div>
-  );
-}
-
-function StepRow({
-  label,
-  stepNum,
-  water,
-  startSec,
-  endSec,
-  onWater,
-  onEnd,
-}: {
-  label: string;
-  stepNum: number;
-  water: number;
-  startSec: number;
-  endSec: number;
-  onWater: (v: number) => void;
-  onEnd: (v: number) => void;
-}) {
-  const fmtSec = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return m > 0 ? `${m}:${sec.toString().padStart(2, "0")}` : `${s}s`;
-  };
-
-  return (
-    <div className="border border-[#D9CBC0] rounded-xl p-3 bg-white space-y-2">
-      <div className="flex items-center gap-2">
-        <span className="w-5 h-5 rounded-full bg-[#C4622D] text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
-          {stepNum}
-        </span>
-        <span className="text-sm font-semibold text-[#1E0E08]">{label}</span>
-        <span className="ml-auto text-xs text-[#A07060]">
-          {fmtSec(startSec)} → {fmtSec(endSec)}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="relative">
-          <input
-            type="number"
-            inputMode="decimal"
-            value={water}
-            min={0}
-            onChange={(e) => onWater(Number(e.target.value))}
-            className="w-full border border-[#D9CBC0] rounded-lg px-3 py-2 pr-9 text-[#1E0E08] bg-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
-            placeholder="Water"
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A07060] pointer-events-none">
-            ml
-          </span>
-        </div>
-        <div className="relative">
-          <input
-            type="number"
-            inputMode="decimal"
-            value={endSec}
-            min={startSec + 1}
-            onChange={(e) => onEnd(Number(e.target.value))}
-            className="w-full border border-[#D9CBC0] rounded-lg px-3 py-2 pr-9 text-[#1E0E08] bg-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
-            placeholder="End (s)"
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A07060] pointer-events-none">
-            s
-          </span>
-        </div>
       </div>
     </div>
   );

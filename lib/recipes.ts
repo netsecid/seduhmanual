@@ -58,7 +58,8 @@ export type ImportResult =
 
 /**
  * Import recipes from a JSON file.
- * @param mode "merge" — keeps existing, adds new ones (deduplicates by id)
+ * Accepts both the old `custom*` field format and the new `customSteps[]` format.
+ * @param mode "merge" — keeps existing, adds new (deduplicates by id)
  *             "replace" — clears all existing recipes first
  */
 export function importRecipes(
@@ -84,20 +85,70 @@ export function importRecipes(
     return { ok: false, error: "No valid recipes found in file." };
   }
 
+  // Migrate old format: convert custom* scalar fields → customSteps[] if needed
+  const migrated = valid.map(migrateRecipe);
+
   if (mode === "replace") {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
-    return { ok: true, added: valid.length, skipped: incoming.length - valid.length };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+    return { ok: true, added: migrated.length, skipped: incoming.length - migrated.length };
   }
 
-  // Merge: deduplicate by id
   const existing = getRecipes();
   const existingIds = new Set(existing.map((r) => r.id));
-  const toAdd = valid.filter((r) => !existingIds.has(r.id));
+  const toAdd = migrated.filter((r) => !existingIds.has(r.id));
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...existing, ...toAdd]));
 
   return {
     ok: true,
     added: toAdd.length,
     skipped: incoming.length - toAdd.length,
+  };
+}
+
+/**
+ * Migrate a recipe from the old pre-Option-C format (custom* scalar fields)
+ * to the new customSteps[] format. No-op if already in new format.
+ */
+function migrateRecipe(r: SavedRecipe): SavedRecipe {
+  // Already in new format or not experimental
+  if (!r.isExperimental || r.customSteps) return r;
+
+  // Old format had: customBloomWater, customPour1Water, customPour2Water,
+  //                 customBloomEnd, customPour1End, customPour2End, customTemp
+  const old = r as SavedRecipe & {
+    customBloomWater?: number;
+    customPour1Water?: number;
+    customPour2Water?: number;
+    customBloomEnd?: number;
+    customPour1End?: number;
+    customPour2End?: number;
+  };
+
+  const bloomDur = old.customBloomEnd ?? 45;
+  const pour1Dur = (old.customPour1End ?? 90) - bloomDur;
+  const pour2Dur = (old.customPour2End ?? 150) - (old.customPour1End ?? 90);
+
+  return {
+    ...r,
+    customSteps: [
+      {
+        id: crypto.randomUUID(),
+        name: "Bloom",
+        waterAmount: old.customBloomWater ?? 0,
+        duration: bloomDur,
+      },
+      {
+        id: crypto.randomUUID(),
+        name: "Pour 1",
+        waterAmount: old.customPour1Water ?? 0,
+        duration: Math.max(1, pour1Dur),
+      },
+      {
+        id: crypto.randomUUID(),
+        name: "Pour 2",
+        waterAmount: old.customPour2Water ?? 0,
+        duration: Math.max(1, pour2Dur),
+      },
+    ],
   };
 }

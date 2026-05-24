@@ -44,21 +44,31 @@ export interface BrewStep {
   description: string;
 }
 
-/** Free-form experimental brew input — every value is manually controlled */
+/**
+ * A single step in an N-step experimental brew.
+ * Timing is duration-based: start time = sum of all previous steps' durations.
+ */
+export interface ExperimentalStep {
+  id: string;           // crypto.randomUUID() — stable React key
+  name: string;         // e.g. "Bloom", "Pour 1", "Steep" — user-editable
+  waterAmount: number;  // ml of water for this step
+  duration: number;     // seconds this step lasts
+  description?: string; // optional technique note
+}
+
+/**
+ * Free-form experimental brew input.
+ * steps[] replaces the old fixed bloom/pour1/pour2 fields.
+ */
 export interface ExperimentalInput {
   coffeeWeight: number;
   totalWater: number;
-  bloomWater: number;
-  bloomEnd: number;   // seconds
-  pour1Water: number;
-  pour1End: number;   // seconds
-  pour2Water: number;
-  pour2End: number;   // seconds
   temperature: number;
   grindSize: GrindSize;
   processType: ProcessType;
   brewMode: BrewMode;
   iceWeight: number;
+  steps: ExperimentalStep[];
 }
 
 export interface SavedRecipe {
@@ -75,13 +85,9 @@ export interface SavedRecipe {
   isBuiltIn?: boolean;
   author?: string;
   notes?: string;
-  // Experimental mode — stores custom step values
+  // Present on built-in recipes — their canonical step array
+  steps?: ExperimentalStep[];
+  // Experimental mode — user-saved custom steps
   isExperimental?: boolean;
-  customBloomWater?: number;
-  customPour1Water?: number;
-  customPour2Water?: number;
-  customBloomEnd?: number;
-  customPour1End?: number;
-  customPour2End?: number;
-  customTemp?: number;
+  customSteps?: ExperimentalStep[];
 }
