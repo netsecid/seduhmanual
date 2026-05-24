@@ -67,9 +67,17 @@ export default function HomePage() {
           processType: pending.processType,
           brewMode: pending.brewMode,
           steps,
+          // Carry forward saved-user choices so they survive the round-trip.
+          temperature: pending.temperature,
+          iceWeight: pending.iceWeight,
         })
       );
       setIsExperimental(true);
+      // Only enable Update Recipe for user-saved experimental recipes —
+      // built-ins live in a separate list that updateRecipe() can't reach.
+      if (!pending.isBuiltIn) {
+        setLoadedRecipe(pending);
+      }
     } else {
       // Standard saved recipe — load into calculator mode.
       // Legacy recipes saved before coffeeWeight/iceWeight existed will be
@@ -135,6 +143,9 @@ export default function HomePage() {
         ...(expInput.brewMode === "ice" && { iceWeight: expInput.iceWeight }),
         isExperimental: true,
         customSteps: expInput.steps,
+        // Persist user's chosen temperature — otherwise it's silently lost
+        // on reload and gets re-derived from processType.
+        temperature: expInput.temperature,
         createdAt: new Date().toISOString(),
       });
     } else {
@@ -162,21 +173,56 @@ export default function HomePage() {
     flashFor("saved");
   };
 
-  // Overwrite the currently-loaded recipe in place — keeps its name/bean/id
-  // and createdAt, updates only the brewing parameters.
+  // Overwrite the currently-loaded recipe in place — keeps its id, name,
+  // beanName, and createdAt, updates everything else from whichever form
+  // (standard or experimental) is currently active.
   const handleUpdate = () => {
     if (!loadedRecipe) return;
-    const updated: SavedRecipe = {
-      ...loadedRecipe,
-      processType: input.processType,
-      grindSize: input.grindSize,
-      ratio: input.ratio,
-      brewMode: input.brewMode,
-      coffeeWeight: input.coffeeWeight,
-      ...(input.brewMode === "ice"
-        ? { iceWeight: input.iceWeight }
-        : { iceWeight: undefined }),
+
+    // Preserve only the identity fields from the original; rebuild the rest
+    // from the active mode so toggling modes before Update doesn't silently
+    // drop the user's edits.
+    const identity = {
+      id: loadedRecipe.id,
+      name: loadedRecipe.name,
+      beanName: loadedRecipe.beanName,
+      createdAt: loadedRecipe.createdAt,
+      // Preserve metadata that only applies to certain recipe kinds.
+      ...(loadedRecipe.author !== undefined && { author: loadedRecipe.author }),
+      ...(loadedRecipe.notes !== undefined && { notes: loadedRecipe.notes }),
     };
+
+    const updated: SavedRecipe = isExperimental
+      ? {
+          ...identity,
+          processType: expInput.processType,
+          grindSize: expInput.grindSize,
+          ratio:
+            expInput.coffeeWeight > 0
+              ? Math.round(expInput.totalWater / expInput.coffeeWeight)
+              : 15,
+          brewMode: expInput.brewMode,
+          coffeeWeight: expInput.coffeeWeight,
+          ...(expInput.brewMode === "ice"
+            ? { iceWeight: expInput.iceWeight }
+            : {}),
+          isExperimental: true,
+          customSteps: expInput.steps,
+          temperature: expInput.temperature,
+        }
+      : {
+          ...identity,
+          processType: input.processType,
+          grindSize: input.grindSize,
+          ratio: input.ratio,
+          brewMode: input.brewMode,
+          coffeeWeight: input.coffeeWeight,
+          ...(input.brewMode === "ice" ? { iceWeight: input.iceWeight } : {}),
+          // Explicitly NOT carrying isExperimental/customSteps/temperature —
+          // if the user converted an experimental recipe to standard via
+          // mode toggle, those fields should be dropped.
+        };
+
     updateRecipe(updated);
     setLoadedRecipe(updated);
     flashFor("updated");

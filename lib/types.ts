@@ -93,4 +93,8 @@ export interface SavedRecipe {
   // Experimental mode — user-saved custom steps
   isExperimental?: boolean;
   customSteps?: ExperimentalStep[];
+  // Custom water temperature (°C) chosen in experimental mode. Optional
+  // because standard-mode recipes derive it from processType at brew time,
+  // and old saved recipes won't have this field.
+  temperature?: number;
 }
