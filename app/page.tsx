@@ -37,6 +37,10 @@ export default function HomePage() {
         grindSize: pending.grindSize,
         brewMode: pending.brewMode,
         processType: pending.processType,
+        // Legacy recipes saved before these fields existed will be undefined;
+        // fall back to the current form value so the load is non-destructive.
+        coffeeWeight: pending.coffeeWeight ?? prev.coffeeWeight,
+        iceWeight: pending.iceWeight ?? prev.iceWeight,
       }));
     }
   }, []);
@@ -59,6 +63,10 @@ export default function HomePage() {
       grindSize: input.grindSize,
       ratio: input.ratio,
       brewMode: input.brewMode,
+      coffeeWeight: input.coffeeWeight,
+      // Persist iceWeight only for ice-brew recipes; for hot brews it has
+      // no effect on the math so we leave it off.
+      ...(input.brewMode === "ice" && { iceWeight: input.iceWeight }),
       createdAt: new Date().toISOString(),
     });
     setRecipeName("");

@@ -52,5 +52,9 @@ export interface SavedRecipe {
   grindSize: GrindSize;
   ratio: number;
   brewMode: BrewMode;
+  coffeeWeight: number;
+  // Only meaningful when brewMode === "ice"; optional for backwards
+  // compatibility with recipes saved before this field existed.
+  iceWeight?: number;
   createdAt: string;
 }
