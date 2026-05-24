@@ -23,6 +23,15 @@ export function deleteRecipe(id: string): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
 }
 
+// Overwrite an existing recipe in place (matched by id), preserving its
+// position in the list. No-ops if the id isn't found.
+export function updateRecipe(updated: SavedRecipe): void {
+  const recipes = getRecipes().map((r) =>
+    r.id === updated.id ? updated : r
+  );
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+}
+
 export function setPendingLoad(recipe: SavedRecipe): void {
   localStorage.setItem(PENDING_KEY, JSON.stringify(recipe));
 }

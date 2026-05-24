@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { BrewInput, GrindSize, ProcessType } from "@/lib/types";
 import { COFFEE_PROCESSES } from "@/constants/coffeeData";
 
@@ -23,6 +24,34 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
   const update = (partial: Partial<BrewInput>) =>
     onChange({ ...input, ...partial });
 
+  // Local text state lets the fields go empty / intermediate while typing,
+  // instead of snapping to "0" the moment they're cleared.
+  const [coffeeWeightStr, setCoffeeWeightStr] = useState(
+    String(input.coffeeWeight)
+  );
+  const [iceWeightStr, setIceWeightStr] = useState(String(input.iceWeight));
+
+  // Re-sync when the numeric value is changed from outside (e.g. loading a recipe).
+  useEffect(() => {
+    setCoffeeWeightStr(String(input.coffeeWeight));
+  }, [input.coffeeWeight]);
+  useEffect(() => {
+    setIceWeightStr(String(input.iceWeight));
+  }, [input.iceWeight]);
+
+  const handleNumericChange = (
+    raw: string,
+    setStr: (v: string) => void,
+    key: "coffeeWeight" | "iceWeight"
+  ) => {
+    setStr(raw);
+    // Only push a numeric value through when the text parses to a real number;
+    // an empty or partial entry leaves the last valid number in place.
+    if (raw.trim() !== "" && !Number.isNaN(Number(raw))) {
+      update({ [key]: Number(raw) });
+    }
+  };
+
   return (
     <div className="space-y-5">
       {/* Coffee weight */}
@@ -34,8 +63,15 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
           <input
             type="number"
             inputMode="decimal"
-            value={input.coffeeWeight}
-            onChange={(e) => update({ coffeeWeight: Number(e.target.value) })}
+            value={coffeeWeightStr}
+            onChange={(e) =>
+              handleNumericChange(
+                e.target.value,
+                setCoffeeWeightStr,
+                "coffeeWeight"
+              )
+            }
+            onBlur={() => setCoffeeWeightStr(String(input.coffeeWeight))}
             min={1}
             className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 pr-10 text-[#1E0E08] bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow"
           />
@@ -106,8 +142,11 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
             <input
               type="number"
               inputMode="decimal"
-              value={input.iceWeight}
-              onChange={(e) => update({ iceWeight: Number(e.target.value) })}
+              value={iceWeightStr}
+              onChange={(e) =>
+                handleNumericChange(e.target.value, setIceWeightStr, "iceWeight")
+              }
+              onBlur={() => setIceWeightStr(String(input.iceWeight))}
               min={0}
               className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 pr-10 text-[#1E0E08] bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow"
             />
