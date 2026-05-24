@@ -6,7 +6,7 @@ import BrewForm from "@/components/BrewForm";
 import BrewResult from "@/components/BrewResult";
 import BrewTimer from "@/components/BrewTimer";
 import ExperimentalForm from "@/components/ExperimentalForm";
-import { BrewInput, ExperimentalInput } from "@/lib/types";
+import { BrewInput, ExperimentalInput, SavedRecipe } from "@/lib/types";
 import {
   calculateBrew,
   getBrewSteps,
@@ -15,7 +15,11 @@ import {
   getExperimentalSteps,
   getTotalSeconds,
 } from "@/lib/calculations";
-import { saveRecipe, consumePendingLoad } from "@/lib/recipes";
+import {
+  saveRecipe,
+  updateRecipe,
+  consumePendingLoad,
+} from "@/lib/recipes";
 
 const DEFAULT_INPUT: BrewInput = {
   coffeeWeight: 15,
@@ -38,7 +42,13 @@ export default function HomePage() {
   const [savingRecipe, setSavingRecipe] = useState(false);
   const [recipeName, setRecipeName] = useState("");
   const [beanName, setBeanName] = useState("");
-  const [savedFlash, setSavedFlash] = useState(false);
+  const [savedFlash, setSavedFlash] = useState<
+    null | "saved" | "updated"
+  >(null);
+  // The recipe currently loaded from the Recipes page, if any. Enables the
+  // "Update Recipe" action — cleared once the user saves a *new* recipe
+  // (forking) or has nothing to overwrite.
+  const [loadedRecipe, setLoadedRecipe] = useState<SavedRecipe | null>(null);
 
   // Apply recipe loaded from the recipes page
   useEffect(() => {
@@ -75,8 +85,14 @@ export default function HomePage() {
         iceWeight: pending.iceWeight ?? prev.iceWeight,
       }));
       setIsExperimental(false);
+      setLoadedRecipe(pending);
     }
   }, []);
+
+  const flashFor = (kind: "saved" | "updated") => {
+    setSavedFlash(kind);
+    setTimeout(() => setSavedFlash(null), 2000);
+  };
 
   const result = useMemo(() => calculateBrew(input), [input]);
   const steps = useMemo(() => getBrewSteps(result), [result]);
@@ -140,8 +156,30 @@ export default function HomePage() {
     setRecipeName("");
     setBeanName("");
     setSavingRecipe(false);
-    setSavedFlash(true);
-    setTimeout(() => setSavedFlash(false), 2000);
+    // Saving-as-new forks from the loaded recipe; clear the loaded reference
+    // so subsequent edits don't accidentally overwrite the original.
+    setLoadedRecipe(null);
+    flashFor("saved");
+  };
+
+  // Overwrite the currently-loaded recipe in place — keeps its name/bean/id
+  // and createdAt, updates only the brewing parameters.
+  const handleUpdate = () => {
+    if (!loadedRecipe) return;
+    const updated: SavedRecipe = {
+      ...loadedRecipe,
+      processType: input.processType,
+      grindSize: input.grindSize,
+      ratio: input.ratio,
+      brewMode: input.brewMode,
+      coffeeWeight: input.coffeeWeight,
+      ...(input.brewMode === "ice"
+        ? { iceWeight: input.iceWeight }
+        : { iceWeight: undefined }),
+    };
+    updateRecipe(updated);
+    setLoadedRecipe(updated);
+    flashFor("updated");
   };
 
   return (
@@ -168,7 +206,7 @@ export default function HomePage() {
       {/* Saved flash */}
       {savedFlash && (
         <div className="bg-[#1E0E08] text-[#F8F3EC] text-sm text-center py-2.5 rounded-xl">
-          Recipe saved!
+          {savedFlash === "updated" ? "Recipe updated!" : "Recipe saved!"}
         </div>
       )}
 
@@ -251,14 +289,53 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Save recipe */}
+      {/* Save / Update recipe */}
       {!savingRecipe ? (
-        <button
-          onClick={() => setSavingRecipe(true)}
-          className="w-full py-2.5 text-sm text-[#6B4B3E] border border-[#D9CBC0] rounded-xl hover:bg-[#EDD9C8]/40 transition-colors duration-150 cursor-pointer"
-        >
-          + Save as Recipe
-        </button>
+        loadedRecipe ? (
+          // Recipe was loaded — give both Update (overwrite) and Save-as-new.
+          <div className="space-y-1.5">
+            <div className="flex gap-2">
+              <button
+                onClick={handleUpdate}
+                disabled={savedFlash === "updated"}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border transition-colors duration-150 cursor-pointer ${
+                  savedFlash === "updated"
+                    ? "bg-[#2E7D5B] border-[#2E7D5B] text-white cursor-default"
+                    : "bg-[#C4622D] border-[#C4622D] text-white hover:bg-[#B05525]"
+                }`}
+                title={`Overwrite "${loadedRecipe.name}"`}
+                aria-live="polite"
+              >
+                {savedFlash === "updated" ? "✓ Updated" : "Update Recipe"}
+              </button>
+              <button
+                onClick={() => setSavingRecipe(true)}
+                className="flex-1 py-2.5 text-sm text-[#6B4B3E] border border-[#D9CBC0] rounded-xl hover:bg-[#EDD9C8]/40 transition-colors duration-150 cursor-pointer"
+              >
+                + Save as Recipe
+              </button>
+            </div>
+            {/* Context line so users know *which* recipe Update overwrites. */}
+            <p className="text-xs text-[#A07060] text-center">
+              {savedFlash === "updated" ? (
+                <span className="text-[#2E7D5B] font-medium">
+                  Saved changes to &ldquo;{loadedRecipe.name}&rdquo;
+                </span>
+              ) : (
+                <>
+                  Editing <span className="font-medium text-[#6B4B3E]">&ldquo;{loadedRecipe.name}&rdquo;</span>
+                </>
+              )}
+            </p>
+          </div>
+        ) : (
+          <button
+            onClick={() => setSavingRecipe(true)}
+            className="w-full py-2.5 text-sm text-[#6B4B3E] border border-[#D9CBC0] rounded-xl hover:bg-[#EDD9C8]/40 transition-colors duration-150 cursor-pointer"
+          >
+            + Save as Recipe
+          </button>
+        )
       ) : (
         <div className="bg-white border border-[#D9CBC0] rounded-2xl p-4 space-y-3">
           <h3
