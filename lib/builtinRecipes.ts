@@ -55,8 +55,8 @@ export const BUILTIN_RECIPES: SavedRecipe[] = [
   },
   {
     id: "builtin-hedrick-hybrid",
-    name: "Hybrid Immersion",
-    beanName: "Versatile — works with any roast",
+    name: "Hybrid Immersion (Switch)",
+    beanName: "⚠️ Requires Hario Switch or immersion-capable dripper",
     author: "Lance Hedrick",
     processType: "Natural",
     grindSize: "Medium",
@@ -65,7 +65,7 @@ export const BUILTIN_RECIPES: SavedRecipe[] = [
     brewMode: "hot",
     isBuiltIn: true,
     notes:
-      "Pour all water within 45 s, then swirl gently. Let steep until ~1:30, then allow full drawdown. Forgiving recipe that produces a full-bodied, sweet cup. Great starting point for naturals.",
+      "Requires a Hario Switch (or Pulsar / any valve-equipped dripper) — not compatible with a standard V60. Close the valve, pour all water within 45 s, then swirl gently. Let steep with valve closed until ~1:30, then open the valve for full drawdown. Produces a full-bodied, forgiving cup. Great starting point for naturals and medium roasts.",
     createdAt: "",
   },
   {
