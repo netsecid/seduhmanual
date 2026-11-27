@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import RecipeCard from "@/components/RecipeCard";
+import ShareRecipeModal from "@/components/ShareRecipeModal";
 import ThemePicker from "@/components/ThemePicker";
 import { SavedRecipe } from "@/lib/types";
 import {
@@ -18,6 +19,7 @@ import { BUILTIN_RECIPES } from "@/lib/builtinRecipes";
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<SavedRecipe[]>([]);
   const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [shareRecipe, setShareRecipe] = useState<SavedRecipe | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -59,7 +61,8 @@ export default function RecipesPage() {
   };
 
   return (
-    <main className="max-w-md mx-auto px-4 py-6 pb-12 space-y-6">
+    <>
+      <main className="max-w-md mx-auto px-4 py-6 pb-12 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -192,6 +195,7 @@ export default function RecipesPage() {
                 recipe={recipe}
                 onDelete={handleDelete}
                 onLoad={handleLoad}
+                onShare={setShareRecipe}
               />
             ))}
           </div>
@@ -200,6 +204,14 @@ export default function RecipesPage() {
 
       <Footer />
     </main>
+
+    {shareRecipe && (
+      <ShareRecipeModal
+        recipe={shareRecipe}
+        onClose={() => setShareRecipe(null)}
+      />
+    )}
+    </>
   );
 }
 

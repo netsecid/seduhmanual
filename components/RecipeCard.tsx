@@ -7,9 +7,10 @@ interface RecipeCardProps {
   recipe: SavedRecipe;
   onDelete?: (id: string) => void;
   onLoad: (recipe: SavedRecipe) => void;
+  onShare?: (recipe: SavedRecipe) => void;
 }
 
-export default function RecipeCard({ recipe, onDelete, onLoad }: RecipeCardProps) {
+export default function RecipeCard({ recipe, onDelete, onLoad, onShare }: RecipeCardProps) {
   const [showNotes, setShowNotes] = useState(false);
 
   const date = recipe.createdAt
@@ -85,13 +86,24 @@ export default function RecipeCard({ recipe, onDelete, onLoad }: RecipeCardProps
         )}
       </div>
 
-      {/* Load button */}
-      <button
-        onClick={() => onLoad(recipe)}
-        className="w-full py-2.5 text-sm font-semibold text-accent border border-accent/30 rounded-xl hover:bg-accent hover:text-on-accent transition-colors duration-150 cursor-pointer"
-      >
-        Load Recipe →
-      </button>
+      {/* Load / Share */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onLoad(recipe)}
+          className="flex-1 py-2.5 text-sm font-semibold text-accent border border-accent/30 rounded-xl hover:bg-accent hover:text-on-accent transition-colors duration-150 cursor-pointer"
+        >
+          Load Recipe →
+        </button>
+        {!recipe.isBuiltIn && onShare && (
+          <button
+            onClick={() => onShare(recipe)}
+            className="px-4 py-2.5 text-sm font-semibold text-ink-muted border border-line rounded-xl hover:bg-accent-soft hover:text-accent transition-colors duration-150 cursor-pointer"
+            aria-label={`Share ${recipe.name}`}
+          >
+            Share
+          </button>
+        )}
+      </div>
     </div>
   );
 }

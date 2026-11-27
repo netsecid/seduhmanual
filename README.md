@@ -68,6 +68,19 @@ Save any brew — calculator or experimental — as a named recipe, stored local
 - **Featured Methods** section shows the built-in recipes (always available, never deletable)
 - Load any recipe back into the calculator or experimental editor with one tap
 
+### 🖼 Share a Recipe
+Every saved custom recipe gets a **Share** button on the Recipes page. It opens a live **Block Poster** editor:
+
+- A bold title block, water hero, 3×2 metrics grid, phase timeline, and step ledger
+- Seven palettes, plus custom background, title-block, and accent colors
+- **Editorial** (serif) or **Modern** (sans) typography
+- **Portrait 4:5** or **Square 1:1** format
+- Automatic text contrast against the chosen background
+
+Share cards open with a palette chosen for strong block contrast: light app themes keep their matching palette, while dark app themes start with Single Origin. You can still switch to any palette or set a custom block color.
+
+The card is rendered locally at 1080px wide, then shared through the device share sheet when available. Browsers without file sharing get a PNG download instead. Every card ends with a **Make your own recipe** call-to-action and the site URL, `https://seduhmanual.vercel.app`. Nothing is uploaded and no account is required.
+
 ### 📤 Export / Import
 Back up your saved recipes as a timestamped `.json` file and restore them on any device. Import merges new recipes without overwriting existing ones. Also handles the old recipe format from earlier versions of the app — backwards compatible.
 
@@ -83,6 +96,7 @@ Back up your saved recipes as a timestamped `.json` file and restore them on any
 | Themes | Six CSS-variable palettes, Auto light/dark |
 | Audio | Web Audio API (no external files) |
 | Storage | `localStorage` (recipes, theme; no backend, no database) |
+| Sharing | Canvas-rendered PNG + Web Share API (no backend) |
 | PWA | Web app manifest + service worker |
 | Deploy | Vercel |
 
@@ -127,6 +141,7 @@ Contributions are welcome! You can:
 
 - **Add a built-in recipe** for a famous brewer or method — recipes live in [`lib/builtinRecipes.ts`](lib/builtinRecipes.ts) as plain TypeScript objects with a `steps[]` array
 - **Add a theme** — palettes live in [`app/globals.css`](app/globals.css) and the picker registry in [`lib/themes.ts`](lib/themes.ts)
+- **Improve the share cards** — the canvas renderer is in [`lib/shareCard.ts`](lib/shareCard.ts) and the editor in [`components/ShareRecipeModal.tsx`](components/ShareRecipeModal.tsx)
 - **Build new features** — brew log, grind visual guide, offline support, i18n, AeroPress/Chemex support, …
 - **Fix bugs** or improve documentation
 

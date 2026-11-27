@@ -58,11 +58,20 @@ The app ships with six themes: Auto, Cafe, Paper, Espresso, Single Origin, and C
 
 Do not hardcode hex colors in components — use the semantic utilities (`bg-surface`, `text-ink`, `text-ink-muted`, `border-line`, `text-accent`, etc.) or the theme CSS variables.
 
+### 🖼 Improve share cards
+The custom-recipe share flow is split across two files:
+
+- [`lib/shareCard.ts`](lib/shareCard.ts) — builds the card data and renders the Block Poster onto a canvas
+- [`components/ShareRecipeModal.tsx`](components/ShareRecipeModal.tsx) — the card editor, palette controls, and Web Share/download actions
+
+Add palettes to `SHARE_PRESETS`. Each preset defines `bg`, `ink`, `accent`, `block`, `onBlock`, and three `phases` colors. The renderer supports **Portrait 4:5** and **Square 1:1**. The layout is a title block, water hero, 3×2 metrics, phase timeline, step ledger, and CTA. If you change spacing or typography, test a long recipe name, a long bean name, and a recipe with many steps in both formats. The card’s call-to-action URL is `SITE_URL` in `lib/shareCard.ts` — update it if the deployment domain changes.
+
 ### 🛠 Add a new feature
 Check the [open issues](https://github.com/netsecid/seduhmanual/issues) or propose your own. Current areas of interest:
 
 - **Additional brew methods** — AeroPress, Chemex, Kalita Wave adapted to the step timer
 - **Offline support** — caching strategy for the service worker
+- **Shareable links** — encode a recipe into a URL or QR code so it can be imported directly
 - **Grind guide** — visual reference for grind sizes by brewer brand
 - **Brew log** — simple history of past brews with timestamps
 - **Internationalisation (i18n)** — the UI is currently English
@@ -99,9 +108,10 @@ npm run start
 ```
 app/            Next.js App Router pages, layout, metadata, manifest, app icons
 components/     UI components — forms, timer, recipe card, theme picker,
-                install prompt, brand mark, numeric input, service worker
+                share editor, install prompt, brand mark, numeric input
 constants/      Static data (coffee process definitions)
-lib/            Core logic — types, calculations, recipe storage, built-ins, themes
+lib/            Core logic — types, calculations, recipe storage, built-ins,
+                themes, share cards
 public/         Static assets, PWA icons, service worker
 ```
 
@@ -115,6 +125,7 @@ public/         Static assets, PWA icons, service worker
 | Themes      | Six palettes, Auto light/dark      |
 | State       | React hooks + localStorage         |
 | Audio       | Web Audio API (no files)           |
+| Sharing     | Canvas PNG + Web Share API         |
 | PWA         | Web app manifest + service worker  |
 | Deploy      | Vercel                             |
 
@@ -130,6 +141,7 @@ No backend, no database, no authentication.
 - [ ] UI changes look good on mobile (max-width ~390px)
 - [ ] Color changes use semantic tokens, not hardcoded hex values
 - [ ] Theme-sensitive changes were checked in both light and dark palettes
+- [ ] Share-card changes were checked in portrait and square formats
 - [ ] UI copy is in English
 - [ ] No new external dependencies added without discussion
 
