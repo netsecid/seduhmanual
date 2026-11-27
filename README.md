@@ -1,6 +1,10 @@
 # seduhmanual
 
-A V60 manual pour-over coffee brewing calculator and step-by-step timer, built as a mobile-first web app for use while brewing.
+A V60 manual pour-over coffee calculator and step-by-step brew timer, built as a mobile-first, installable web app for use while brewing.
+
+## The name
+
+**seduhmanual** comes from Bahasa Indonesia: **seduh** means “to brew” and **manual** means “manual” — together, “manual brew.” It is a small nod to the hand-poured, no-machine approach the app is built around.
 
 ---
 
@@ -18,7 +22,29 @@ A free-form brew editor — toggle it on to take full manual control of every pa
 - Save the result as a recipe and reload it later with all steps intact
 
 ### ⏱ Step-by-Step Timer
-A circular progress timer with Web Audio API beeps at each step transition. Works with any number of steps — from a simple 2-step Hario guide up to Hoffmann's 5-step technique. Ends with a "STOP — Angkat V60!" alert.
+A circular progress timer with Web Audio API beeps at each step transition. It works with any number of steps — from a simple 2-step Hario guide up to Hoffmann's 5-step technique.
+
+- Each phase gets its own color on the progress ring, with the elapsed portion filling in as you brew.
+- The current phase shows the cumulative water target, e.g. “Pour until 120 ml total.”
+- A next-step preview tells you what is coming and how many seconds remain.
+- The screen stays awake while the timer runs on browsers that support the Screen Wake Lock API.
+- Ends with a “STOP — Remove the V60!” alert.
+
+### 🎨 Themes
+Six built-in themes:
+- **Auto** — follows the system preference: Paper in light mode, Espresso in dark mode
+- **Cafe** — the original warm cream and terracotta look
+- **Paper** — minimal light, with near-black ink and a single clay accent
+- **Espresso** — warm dark, with cocoa surfaces and copper accents
+- **Single Origin** — parchment and forest green, inspired by roaster packaging
+- **Cupping Lab** — cool gray and teal, with a precise, professional feel
+
+Pick a theme from the palette button in the header. The choice is saved locally, applied before the page paints, and updates the browser chrome color. The logo and timer phase colors adapt to every theme.
+
+### 📲 Installable App
+Use the install button in the header to add seduhmanual to your home screen. The app ships with a web app manifest, service worker, and dedicated app/favicon icons.
+
+> The service worker is intentionally network-only, so installing gives you a home-screen app but does not provide offline use yet.
 
 ### 📖 Featured Methods
 Seven curated recipes from well-known specialty coffee brewers, each with real, accurate step-by-step timing. Loading a featured recipe opens it directly in Experimental Mode with the correct steps pre-filled.
@@ -53,9 +79,11 @@ Back up your saved recipes as a timestamped `.json` file and restore them on any
 |---|---|
 | Framework | [Next.js](https://nextjs.org) 16 (App Router) |
 | Language | TypeScript |
-| Styles | Tailwind CSS v4 |
+| Styles | Tailwind CSS v4 with semantic theme tokens |
+| Themes | Six CSS-variable palettes, Auto light/dark |
 | Audio | Web Audio API (no external files) |
-| Storage | `localStorage` (no backend, no database) |
+| Storage | `localStorage` (recipes, theme; no backend, no database) |
+| PWA | Web app manifest + service worker |
 | Deploy | Vercel |
 
 ---
@@ -68,6 +96,15 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+To verify a production build:
+
+```bash
+npm run build
+npm run start
+```
+
+No environment variables are required.
 
 ## Deploying to Vercel
 
@@ -82,8 +119,6 @@ Follow the prompts to link your Vercel account. For subsequent deploys:
 vercel --prod
 ```
 
-No environment variables required.
-
 ---
 
 ## Contributing
@@ -91,10 +126,11 @@ No environment variables required.
 Contributions are welcome! You can:
 
 - **Add a built-in recipe** for a famous brewer or method — recipes live in [`lib/builtinRecipes.ts`](lib/builtinRecipes.ts) as plain TypeScript objects with a `steps[]` array
-- **Build new features** — brew log, grind visual guide, PWA/offline support, i18n, Hario Switch support, …
+- **Add a theme** — palettes live in [`app/globals.css`](app/globals.css) and the picker registry in [`lib/themes.ts`](lib/themes.ts)
+- **Build new features** — brew log, grind visual guide, offline support, i18n, AeroPress/Chemex support, …
 - **Fix bugs** or improve documentation
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines, the recipe step schema, code style rules, and the PR checklist.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines, the recipe step schema, theme instructions, code style rules, and the PR checklist.
 
 ---
 

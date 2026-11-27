@@ -7,8 +7,8 @@ interface BrewResultProps {
 
 export default function BrewResult({ result, input }: BrewResultProps) {
   return (
-    <div className="bg-[#FBF0E9] rounded-2xl p-5 space-y-4 border border-[#EDD9C8]">
-      <h2 className="font-display text-base font-semibold text-[#1E0E08] tracking-wide">
+    <div className="bg-accent-soft rounded-2xl p-5 space-y-4 border border-line-soft">
+      <h2 className="font-display text-base font-semibold text-ink tracking-wide">
         Brew Recipe
       </h2>
 
@@ -29,12 +29,12 @@ export default function BrewResult({ result, input }: BrewResultProps) {
       </div>
 
       {input.brewMode === "ice" && (
-        <p className="text-sm text-[#6B4B3E] bg-white/70 rounded-xl px-4 py-2.5 border border-[#D9CBC0]">
+        <p className="text-sm text-ink-muted bg-surface/70 rounded-xl px-4 py-2.5 border border-line">
           Add <strong>{input.iceWeight}g</strong> of ice to your server before brewing.
         </p>
       )}
 
-      <div className="space-y-1.5 pt-1 border-t border-[#EDD9C8]">
+      <div className="space-y-1.5 pt-1 border-t border-line-soft">
         <PourRow label="Bloom" water={result.bloomWater} time="0 – 45s" />
         <PourRow label="Pour 1" water={result.pour1Water} time="45 – 90s" />
         <PourRow label="Pour 2" water={result.pour2Water} time="90 – 150s" />
@@ -55,10 +55,10 @@ function StatCard({
   accent?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-xl px-4 py-3 shadow-sm">
-      <p className="text-xs text-[#6B4B3E] mb-0.5">{label}</p>
+    <div className="bg-surface rounded-xl px-4 py-3 shadow-sm">
+      <p className="text-xs text-ink-muted mb-0.5">{label}</p>
       <p
-        className={`text-xl font-semibold tabular-nums ${accent ? "text-[#C4622D]" : "text-[#1E0E08]"}`}
+        className={`text-xl font-semibold tabular-nums ${accent ? "text-accent" : "text-ink"}`}
       >
         {value}
         <span className="text-sm font-normal ml-0.5">{unit}</span>
@@ -78,10 +78,10 @@ function PourRow({
 }) {
   return (
     <div className="flex items-center justify-between text-sm">
-      <span className="text-[#6B4B3E]">{label}</span>
-      <span className="tabular-nums font-medium text-[#1E0E08]">
+      <span className="text-ink-muted">{label}</span>
+      <span className="tabular-nums font-medium text-ink">
         {water}ml{" "}
-        <span className="font-normal text-[#A07060] text-xs">{time}</span>
+        <span className="font-normal text-ink-subtle text-xs">{time}</span>
       </span>
     </div>
   );

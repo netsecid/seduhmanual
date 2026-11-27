@@ -1,16 +1,263 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-display: var(--font-playfair);
+  --font-display: var(--display-font);
   --font-sans: var(--font-dm-sans);
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-accent-soft: var(--accent-soft);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
+  --color-success: var(--success);
+  --color-on-success: var(--on-success);
+}
+
+/*
+ * Theme tokens
+ * ------------
+ * `auto` follows the OS: Paper in light mode, Espresso in dark mode.
+ * Explicit themes below override both. Keep every theme's token list complete;
+ * a missing token would inherit the light (Paper) default.
+ */
+
+/* Paper — default light */
+:root,
+[data-theme="auto"] {
+  color-scheme: light;
+
+  --canvas: #fafaf8;
+  --surface: #ffffff;
+  --accent-soft: #f4f1ed;
+  --line: #e4e4df;
+  --line-soft: #eeeee9;
+  --ink: #171717;
+  --on-ink: #fafaf8;
+  --ink-muted: #5c5c57;
+  --ink-subtle: #6f6f68;
+  --accent: #a64b24;
+  --accent-strong: #8e3e1d;
+  --on-accent: #ffffff;
+  --success: #2f6f53;
+  --on-success: #ffffff;
+  --display-font: var(--font-dm-sans);
+
+  --phase-1: #b4552d;
+  --phase-2: #2f6f53;
+  --phase-3: #a67c1f;
+  --phase-4: #3f6f80;
+  --phase-5: #7a5268;
+  --phase-6: #68763f;
+  --phase-7: #a34a38;
+  --phase-8: #4f5e8c;
+}
+
+/* Auto in dark mode → Espresso */
+@media (prefers-color-scheme: dark) {
+  :root,
+  [data-theme="auto"] {
+    color-scheme: dark;
+
+    --canvas: #141110;
+    --surface: #1d1917;
+    --accent-soft: #2a211c;
+    --line: #3a312b;
+    --line-soft: #4a3e36;
+    --ink: #f5ede3;
+    --on-ink: #1a1310;
+    --ink-muted: #c9b8a8;
+    --ink-subtle: #9c8a7a;
+    --accent: #e08a52;
+    --accent-strong: #f0a06b;
+    --on-accent: #1a1310;
+    --success: #6fbf95;
+    --on-success: #0f2419;
+    --display-font: var(--font-playfair);
+
+    --phase-1: #e08a52;
+    --phase-2: #6fbf95;
+    --phase-3: #e3b85a;
+    --phase-4: #6fa8bc;
+    --phase-5: #b98bae;
+    --phase-6: #a3b56a;
+    --phase-7: #d97a64;
+    --phase-8: #8493c4;
+  }
+}
+
+/* Cafe — the original warm look */
+[data-theme="cafe"] {
+  color-scheme: light;
+
+  --canvas: #f8f3ec;
+  --surface: #ffffff;
+  --accent-soft: #fbf0e9;
+  --line: #d9cbc0;
+  --line-soft: #edd9c8;
+  --ink: #1e0e08;
+  --on-ink: #f8f3ec;
+  --ink-muted: #6b4b3e;
+  --ink-subtle: #a07060;
+  --accent: #c4622d;
+  --accent-strong: #b05525;
+  --on-accent: #ffffff;
+  --success: #2e7d5b;
+  --on-success: #ffffff;
+  --display-font: var(--font-playfair);
+
+  --phase-1: #c4622d;
+  --phase-2: #2e7d5b;
+  --phase-3: #c59a2b;
+  --phase-4: #4a7c8c;
+  --phase-5: #8c5a7a;
+  --phase-6: #7a8b4a;
+  --phase-7: #b4553f;
+  --phase-8: #5c6b9e;
+}
+
+/* Paper — minimal light */
+[data-theme="paper"] {
+  color-scheme: light;
+
+  --canvas: #fafaf8;
+  --surface: #ffffff;
+  --accent-soft: #f4f1ed;
+  --line: #e4e4df;
+  --line-soft: #eeeee9;
+  --ink: #171717;
+  --on-ink: #fafaf8;
+  --ink-muted: #5c5c57;
+  --ink-subtle: #6f6f68;
+  --accent: #a64b24;
+  --accent-strong: #8e3e1d;
+  --on-accent: #ffffff;
+  --success: #2f6f53;
+  --on-success: #ffffff;
+  --display-font: var(--font-dm-sans);
+
+  --phase-1: #b4552d;
+  --phase-2: #2f6f53;
+  --phase-3: #a67c1f;
+  --phase-4: #3f6f80;
+  --phase-5: #7a5268;
+  --phase-6: #68763f;
+  --phase-7: #a34a38;
+  --phase-8: #4f5e8c;
+}
+
+/* Espresso — warm dark */
+[data-theme="espresso"] {
+  color-scheme: dark;
+
+  --canvas: #141110;
+  --surface: #1d1917;
+  --accent-soft: #2a211c;
+  --line: #3a312b;
+  --line-soft: #4a3e36;
+  --ink: #f5ede3;
+  --on-ink: #1a1310;
+  --ink-muted: #c9b8a8;
+  --ink-subtle: #9c8a7a;
+  --accent: #e08a52;
+  --accent-strong: #f0a06b;
+  --on-accent: #1a1310;
+  --success: #6fbf95;
+  --on-success: #0f2419;
+  --display-font: var(--font-playfair);
+
+  --phase-1: #e08a52;
+  --phase-2: #6fbf95;
+  --phase-3: #e3b85a;
+  --phase-4: #6fa8bc;
+  --phase-5: #b98bae;
+  --phase-6: #a3b56a;
+  --phase-7: #d97a64;
+  --phase-8: #8493c4;
+}
+
+/* Single Origin — parchment and forest */
+[data-theme="single-origin"] {
+  color-scheme: light;
+
+  --canvas: #f2ebdd;
+  --surface: #faf5ea;
+  --accent-soft: #ede5d3;
+  --line: #dcd2be;
+  --line-soft: #e8dfcb;
+  --ink: #21352a;
+  --on-ink: #f7f2e6;
+  --ink-muted: #56654f;
+  --ink-subtle: #5c6b55;
+  --accent: #a84b27;
+  --accent-strong: #8f3e1f;
+  --on-accent: #ffffff;
+  --success: #476b52;
+  --on-success: #f7f2e6;
+  --display-font: var(--font-playfair);
+
+  --phase-1: #b4552f;
+  --phase-2: #476b52;
+  --phase-3: #a87b2a;
+  --phase-4: #4e7a78;
+  --phase-5: #7a5a6e;
+  --phase-6: #6e7c45;
+  --phase-7: #a34c34;
+  --phase-8: #5a6690;
+}
+
+/* Cupping Lab — cool and precise */
+[data-theme="cupping-lab"] {
+  color-scheme: light;
+
+  --canvas: #f3f5f7;
+  --surface: #ffffff;
+  --accent-soft: #e9f2f1;
+  --line: #dce2e8;
+  --line-soft: #e8edf1;
+  --ink: #0f172a;
+  --on-ink: #f8fafc;
+  --ink-muted: #475569;
+  --ink-subtle: #5f6b7c;
+  --accent: #0f766e;
+  --accent-strong: #0b5f58;
+  --on-accent: #ffffff;
+  --success: #15803d;
+  --on-success: #ffffff;
+  --display-font: var(--font-dm-sans);
+
+  --phase-1: #0f766e;
+  --phase-2: #b45309;
+  --phase-3: #2563eb;
+  --phase-4: #7e22ce;
+  --phase-5: #be123c;
+  --phase-6: #4d7c0f;
+  --phase-7: #0e7490;
+  --phase-8: #64748b;
+}
+
+html {
+  background-color: var(--canvas);
 }
 
 body {
-  background-color: #F8F3EC;
-  color: #1E0E08;
+  background-color: var(--canvas);
+  color: var(--ink);
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-subtle);
+  opacity: 1;
 }
 
 /* Prevent iOS auto-zoom on inputs (must be 16px+ to avoid zoom) */

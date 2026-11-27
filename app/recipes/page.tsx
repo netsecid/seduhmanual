@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import RecipeCard from "@/components/RecipeCard";
+import ThemePicker from "@/components/ThemePicker";
 import { SavedRecipe } from "@/lib/types";
 import {
   getRecipes,
@@ -63,35 +64,38 @@ export default function RecipesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1
-            className="text-2xl font-bold text-[#1E0E08]"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+            className="text-2xl font-bold text-ink"
+            style={{ fontFamily: "var(--display-font), Georgia, serif" }}
           >
             Recipes
           </h1>
-          <p className="text-xs text-[#A07060] mt-0.5">Brew profiles & featured methods</p>
+          <p className="text-xs text-ink-subtle mt-0.5">Brew profiles & featured methods</p>
         </div>
-        <Link
-          href="/"
-          className="text-sm text-[#C4622D] font-medium border border-[#C4622D]/30 rounded-xl px-3.5 py-2 hover:bg-[#C4622D] hover:text-white transition-colors duration-150"
-        >
-          ← Back
-        </Link>
+        <div className="ml-auto flex items-center gap-2">
+          <Link
+            href="/"
+            className="text-sm text-accent font-medium border border-accent/30 rounded-xl px-3.5 py-2 hover:bg-accent hover:text-on-accent transition-colors duration-150"
+          >
+            ← Back
+          </Link>
+          <ThemePicker />
+        </div>
       </div>
 
       {/* ── Featured Methods ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <h2
-            className="text-sm font-semibold text-[#1E0E08]"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+            className="text-sm font-semibold text-ink"
+            style={{ fontFamily: "var(--display-font), Georgia, serif" }}
           >
             Featured Methods
           </h2>
-          <span className="text-xs text-[#A07060] bg-[#FBF0E9] border border-[#EDD9C8] rounded-full px-2 py-0.5">
+          <span className="text-xs text-ink-subtle bg-accent-soft border border-line-soft rounded-full px-2 py-0.5">
             {BUILTIN_RECIPES.length} recipes
           </span>
         </div>
-        <p className="text-xs text-[#A07060] -mt-1 leading-relaxed">
+        <p className="text-xs text-ink-subtle -mt-1 leading-relaxed">
           Curated recipes with real step-by-step timing. Loading one opens it in
           Experimental Mode with the correct steps pre-filled. Tap{" "}
           <span className="font-semibold">i</span> to read method notes.
@@ -103,20 +107,20 @@ export default function RecipesPage() {
         </div>
       </section>
 
-      <hr className="border-[#EDD9C8]" />
+      <hr className="border-line-soft" />
 
       {/* ── My Recipes ── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2
-              className="text-sm font-semibold text-[#1E0E08]"
-              style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+              className="text-sm font-semibold text-ink"
+              style={{ fontFamily: "var(--display-font), Georgia, serif" }}
             >
               My Recipes
             </h2>
             {recipes.length > 0 && (
-              <span className="text-xs text-[#A07060] bg-[#FBF0E9] border border-[#EDD9C8] rounded-full px-2 py-0.5">
+              <span className="text-xs text-ink-subtle bg-accent-soft border border-line-soft rounded-full px-2 py-0.5">
                 {recipes.length}
               </span>
             )}
@@ -126,14 +130,14 @@ export default function RecipesPage() {
             <button
               onClick={exportRecipes}
               disabled={recipes.length === 0}
-              className="text-xs text-[#6B4B3E] border border-[#D9CBC0] rounded-lg px-3 py-1.5 hover:bg-[#EDD9C8]/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="text-xs text-ink-muted border border-line rounded-lg px-3 py-1.5 hover:bg-line-soft/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               title="Download recipes as JSON"
             >
               Export
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="text-xs text-[#6B4B3E] border border-[#D9CBC0] rounded-lg px-3 py-1.5 hover:bg-[#EDD9C8]/60 transition-colors cursor-pointer"
+              className="text-xs text-ink-muted border border-line rounded-lg px-3 py-1.5 hover:bg-line-soft/60 transition-colors cursor-pointer"
               title="Import recipes from JSON"
             >
               Import
@@ -153,8 +157,8 @@ export default function RecipesPage() {
           <div
             className={`text-sm text-center py-2.5 rounded-xl ${
               importStatus.startsWith("✓")
-                ? "bg-[#1E0E08] text-[#F8F3EC]"
-                : "bg-[#C4622D] text-white"
+                ? "bg-ink text-on-ink"
+                : "bg-accent text-on-accent"
             }`}
           >
             {importStatus}
@@ -164,18 +168,18 @@ export default function RecipesPage() {
         {recipes.length === 0 ? (
           <div className="text-center py-10">
             <div
-              className="text-4xl mb-4 text-[#C4622D] font-bold"
-              style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+              className="text-4xl mb-4 text-accent font-bold"
+              style={{ fontFamily: "var(--display-font), Georgia, serif" }}
             >
               ~
             </div>
-            <p className="text-sm text-[#6B4B3E] font-medium">No recipes saved yet.</p>
-            <p className="text-sm text-[#A07060] mt-1">
+            <p className="text-sm text-ink-muted font-medium">No recipes saved yet.</p>
+            <p className="text-sm text-ink-subtle mt-1">
               Brew something, then save it from the main page.
             </p>
             <Link
               href="/"
-              className="inline-block mt-5 px-5 py-2.5 bg-[#C4622D] text-white text-sm font-semibold rounded-xl hover:bg-[#B05525] transition-colors"
+              className="inline-block mt-5 px-5 py-2.5 bg-accent text-on-accent text-sm font-semibold rounded-xl hover:bg-accent-strong transition-colors"
             >
               Go brew something →
             </Link>
@@ -201,14 +205,14 @@ export default function RecipesPage() {
 
 function Footer() {
   return (
-    <footer className="flex items-center justify-center gap-3 pt-2 text-xs text-[#A07060]">
+    <footer className="flex items-center justify-center gap-3 pt-2 text-xs text-ink-subtle">
       <span>seduhmanual</span>
       <span>·</span>
       <a
         href="https://github.com/netsecid/seduhmanual"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-1.5 hover:text-[#1E0E08] transition-colors"
+        className="flex items-center gap-1.5 hover:text-ink transition-colors"
         aria-label="View on GitHub"
       >
         <GitHubIcon />

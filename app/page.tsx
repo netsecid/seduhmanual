@@ -6,6 +6,9 @@ import BrewForm from "@/components/BrewForm";
 import BrewResult from "@/components/BrewResult";
 import BrewTimer from "@/components/BrewTimer";
 import ExperimentalForm from "@/components/ExperimentalForm";
+import InstallAppButton from "@/components/InstallAppButton";
+import ThemePicker from "@/components/ThemePicker";
+import DripperMark from "@/components/DripperMark";
 import { BrewInput, ExperimentalInput, SavedRecipe } from "@/lib/types";
 import {
   calculateBrew,
@@ -231,40 +234,46 @@ export default function HomePage() {
   return (
     <main className="max-w-md mx-auto px-4 py-6 pb-12 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1
-            className="text-2xl font-bold text-[#1E0E08] tracking-tight"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-          >
-            seduhmanual
-          </h1>
-          <p className="text-xs text-[#A07060] mt-0.5">V60 Pour-Over Calculator</p>
+      <div className="flex flex-wrap items-center justify-between gap-y-2">
+        <div className="flex items-center gap-1.5">
+          <DripperMark className="h-8 w-8 flex-shrink-0" />
+          <div>
+            <h1 className="text-2xl font-bold text-ink tracking-tight font-display">
+              seduhmanual
+            </h1>
+            <p className="text-xs text-ink-subtle mt-0.5">
+              V60 recipes and calculator
+            </p>
+          </div>
         </div>
-        <Link
-          href="/recipes"
-          className="text-sm text-[#C4622D] font-medium border border-[#C4622D]/30 rounded-xl px-3.5 py-2 hover:bg-[#C4622D] hover:text-white transition-colors duration-150"
-        >
-          Recipes
-        </Link>
+        <div className="ml-auto flex items-center gap-1.5">
+          <Link
+            href="/recipes"
+            className="text-sm text-accent font-medium border border-accent/30 rounded-xl px-3 py-2 hover:bg-accent hover:text-on-accent transition-colors duration-150"
+          >
+            Recipes
+          </Link>
+          <InstallAppButton />
+          <ThemePicker />
+        </div>
       </div>
 
       {/* Saved flash */}
       {savedFlash && (
-        <div className="bg-[#1E0E08] text-[#F8F3EC] text-sm text-center py-2.5 rounded-xl">
+        <div className="bg-ink text-on-ink text-sm text-center py-2.5 rounded-xl">
           {savedFlash === "updated" ? "Recipe updated!" : "Recipe saved!"}
         </div>
       )}
 
       {/* Mode toggle */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-[#6B4B3E] uppercase tracking-wider">
+        <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">
           {isExperimental ? "Experimental Mode" : "Calculator Mode"}
         </span>
         <button
           onClick={handleToggleExperimental}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none ${
-            isExperimental ? "bg-[#1E0E08]" : "bg-[#D9CBC0]"
+            isExperimental ? "bg-accent" : "bg-line"
           }`}
           aria-label="Toggle experimental mode"
           role="switch"
@@ -290,12 +299,12 @@ export default function HomePage() {
 
       {/* Experimental: dynamic N-step summary */}
       {isExperimental && (
-        <div className="bg-[#FBF0E9] rounded-2xl p-4 border border-[#EDD9C8] space-y-2">
+        <div className="bg-accent-soft rounded-2xl p-4 border border-line-soft space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-[#6B4B3E] uppercase tracking-wider">
+            <p className="text-xs font-medium text-ink-muted uppercase tracking-wider">
               Recipe Summary
             </p>
-            <span className="text-xs text-[#A07060]">
+            <span className="text-xs text-ink-subtle">
               {expInput.steps.length} step{expInput.steps.length !== 1 ? "s" : ""} ·{" "}
               {formatTime(expTotalSeconds)} total
             </span>
@@ -313,7 +322,7 @@ export default function HomePage() {
             />
           </div>
           {/* Dynamic step rows */}
-          <div className="pt-2 border-t border-[#EDD9C8] space-y-1 text-sm">
+          <div className="pt-2 border-t border-line-soft space-y-1 text-sm">
             {expInput.steps.map((s, i) => {
               let cursor = 0;
               for (let j = 0; j < i; j++) cursor += expInput.steps[j].duration;
@@ -321,10 +330,10 @@ export default function HomePage() {
               const endSec = cursor + s.duration;
               return (
                 <div key={s.id} className="flex items-center justify-between">
-                  <span className="text-[#6B4B3E] truncate mr-2">{s.name}</span>
-                  <span className="text-[#1E0E08] font-medium tabular-nums flex-shrink-0">
+                  <span className="text-ink-muted truncate mr-2">{s.name}</span>
+                  <span className="text-ink font-medium tabular-nums flex-shrink-0">
                     {s.waterAmount}ml{" "}
-                    <span className="text-[#A07060] text-xs font-normal">
+                    <span className="text-ink-subtle text-xs font-normal">
                       {formatTime(startSec)}–{formatTime(endSec)}
                     </span>
                   </span>
@@ -346,8 +355,8 @@ export default function HomePage() {
                 disabled={savedFlash === "updated"}
                 className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border transition-colors duration-150 cursor-pointer ${
                   savedFlash === "updated"
-                    ? "bg-[#2E7D5B] border-[#2E7D5B] text-white cursor-default"
-                    : "bg-[#C4622D] border-[#C4622D] text-white hover:bg-[#B05525]"
+                    ? "bg-success border-success text-on-success cursor-default"
+                    : "bg-accent border-accent text-on-accent hover:bg-accent-strong"
                 }`}
                 title={`Overwrite "${loadedRecipe.name}"`}
                 aria-live="polite"
@@ -356,20 +365,20 @@ export default function HomePage() {
               </button>
               <button
                 onClick={() => setSavingRecipe(true)}
-                className="flex-1 py-2.5 text-sm text-[#6B4B3E] border border-[#D9CBC0] rounded-xl hover:bg-[#EDD9C8]/40 transition-colors duration-150 cursor-pointer"
+                className="flex-1 py-2.5 text-sm text-ink-muted border border-line rounded-xl hover:bg-line-soft/40 transition-colors duration-150 cursor-pointer"
               >
                 + Save as Recipe
               </button>
             </div>
             {/* Context line so users know *which* recipe Update overwrites. */}
-            <p className="text-xs text-[#A07060] text-center">
+            <p className="text-xs text-ink-subtle text-center">
               {savedFlash === "updated" ? (
-                <span className="text-[#2E7D5B] font-medium">
+                <span className="text-success font-medium">
                   Saved changes to &ldquo;{loadedRecipe.name}&rdquo;
                 </span>
               ) : (
                 <>
-                  Editing <span className="font-medium text-[#6B4B3E]">&ldquo;{loadedRecipe.name}&rdquo;</span>
+                  Editing <span className="font-medium text-ink-muted">&ldquo;{loadedRecipe.name}&rdquo;</span>
                 </>
               )}
             </p>
@@ -377,16 +386,16 @@ export default function HomePage() {
         ) : (
           <button
             onClick={() => setSavingRecipe(true)}
-            className="w-full py-2.5 text-sm text-[#6B4B3E] border border-[#D9CBC0] rounded-xl hover:bg-[#EDD9C8]/40 transition-colors duration-150 cursor-pointer"
+            className="w-full py-2.5 text-sm text-ink-muted border border-line rounded-xl hover:bg-line-soft/40 transition-colors duration-150 cursor-pointer"
           >
             + Save as Recipe
           </button>
         )
       ) : (
-        <div className="bg-white border border-[#D9CBC0] rounded-2xl p-4 space-y-3">
+        <div className="bg-surface border border-line rounded-2xl p-4 space-y-3">
           <h3
-            className="font-semibold text-[#1E0E08]"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+            className="font-semibold text-ink"
+            style={{ fontFamily: "var(--display-font), Georgia, serif" }}
           >
             Save Recipe{isExperimental ? " (Experimental)" : ""}
           </h3>
@@ -395,26 +404,26 @@ export default function HomePage() {
             placeholder="Recipe name (e.g. Morning Bright)"
             value={recipeName}
             onChange={(e) => setRecipeName(e.target.value)}
-            className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 text-[#1E0E08] text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
+            className="w-full border border-line rounded-xl px-4 py-3 text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
           />
           <input
             type="text"
             placeholder="Bean name / origin"
             value={beanName}
             onChange={(e) => setBeanName(e.target.value)}
-            className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 text-[#1E0E08] text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
+            className="w-full border border-line rounded-xl px-4 py-3 text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
           />
           <div className="flex gap-2">
             <button
               onClick={handleSave}
               disabled={!recipeName.trim() || !beanName.trim()}
-              className="flex-1 py-2.5 bg-[#C4622D] text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-[#B05525] transition-colors cursor-pointer"
+              className="flex-1 py-2.5 bg-accent text-on-accent rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-accent-strong transition-colors cursor-pointer"
             >
               Save
             </button>
             <button
               onClick={() => setSavingRecipe(false)}
-              className="px-4 py-2.5 border border-[#D9CBC0] rounded-xl text-sm text-[#6B4B3E] hover:bg-[#EDD9C8]/40 transition-colors cursor-pointer"
+              className="px-4 py-2.5 border border-line rounded-xl text-sm text-ink-muted hover:bg-line-soft/40 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -426,23 +435,23 @@ export default function HomePage() {
       {!showTimer ? (
         <button
           onClick={handleStartBrew}
-          className="w-full py-4 bg-[#1E0E08] text-[#F8F3EC] rounded-2xl font-semibold text-base hover:bg-[#2C1810] transition-colors duration-150 cursor-pointer tracking-wide"
-          style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+          className="w-full py-4 bg-ink text-on-ink rounded-2xl font-semibold text-base hover:bg-ink/90 transition-colors duration-150 cursor-pointer tracking-wide"
+          style={{ fontFamily: "var(--display-font), Georgia, serif" }}
         >
           Start Brewing →
         </button>
       ) : (
-        <div className="border border-[#D9CBC0] rounded-2xl p-5 bg-white/60">
+        <div className="border border-line rounded-2xl p-5 bg-surface/60">
           <div className="flex items-center justify-between mb-5">
             <h2
-              className="font-semibold text-[#1E0E08]"
-              style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+              className="font-semibold text-ink"
+              style={{ fontFamily: "var(--display-font), Georgia, serif" }}
             >
               Brew Timer
             </h2>
             <button
               onClick={() => setShowTimer(false)}
-              className="text-xs text-[#A07060] hover:text-[#6B4B3E] transition-colors cursor-pointer px-2 py-1"
+              className="text-xs text-ink-subtle hover:text-ink-muted transition-colors cursor-pointer px-2 py-1"
             >
               ✕ Close
             </button>
@@ -478,11 +487,11 @@ function SummaryCell({
   accent?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-xl py-2 shadow-sm">
-      <p className="text-[10px] text-[#6B4B3E]">{label}</p>
+    <div className="bg-surface rounded-xl py-2 shadow-sm">
+      <p className="text-[10px] text-ink-muted">{label}</p>
       <p
         className={`text-sm font-semibold tabular-nums ${
-          accent ? "text-[#C4622D]" : "text-[#1E0E08]"
+          accent ? "text-accent" : "text-ink"
         }`}
       >
         {value}
@@ -493,14 +502,14 @@ function SummaryCell({
 
 function Footer() {
   return (
-    <footer className="flex items-center justify-center gap-3 pt-2 text-xs text-[#A07060]">
+    <footer className="flex items-center justify-center gap-3 pt-2 text-xs text-ink-subtle">
       <span>seduhmanual</span>
       <span>·</span>
       <a
         href="https://github.com/netsecid/seduhmanual"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-1.5 hover:text-[#1E0E08] transition-colors"
+        className="flex items-center gap-1.5 hover:text-ink transition-colors"
         aria-label="View on GitHub"
       >
         <GitHubIcon />

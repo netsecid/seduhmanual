@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { BrewInput, GrindSize, ProcessType } from "@/lib/types";
 import { COFFEE_PROCESSES } from "@/constants/coffeeData";
+import NumericInput from "@/components/NumericInput";
 
 interface BrewFormProps {
   input: BrewInput;
@@ -24,58 +24,22 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
   const update = (partial: Partial<BrewInput>) =>
     onChange({ ...input, ...partial });
 
-  // Local text state lets the fields go empty / intermediate while typing,
-  // instead of snapping to "0" the moment they're cleared.
-  const [coffeeWeightStr, setCoffeeWeightStr] = useState(
-    String(input.coffeeWeight)
-  );
-  const [iceWeightStr, setIceWeightStr] = useState(String(input.iceWeight));
-
-  // Re-sync when the numeric value is changed from outside (e.g. loading a recipe).
-  useEffect(() => {
-    setCoffeeWeightStr(String(input.coffeeWeight));
-  }, [input.coffeeWeight]);
-  useEffect(() => {
-    setIceWeightStr(String(input.iceWeight));
-  }, [input.iceWeight]);
-
-  const handleNumericChange = (
-    raw: string,
-    setStr: (v: string) => void,
-    key: "coffeeWeight" | "iceWeight"
-  ) => {
-    setStr(raw);
-    // Only push a numeric value through when the text parses to a real number;
-    // an empty or partial entry leaves the last valid number in place.
-    if (raw.trim() !== "" && !Number.isNaN(Number(raw))) {
-      update({ [key]: Number(raw) });
-    }
-  };
-
   return (
     <div className="space-y-5">
       {/* Coffee weight */}
       <div>
-        <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
           Coffee Weight
         </label>
         <div className="relative">
-          <input
-            type="number"
-            inputMode="decimal"
-            value={coffeeWeightStr}
-            onChange={(e) =>
-              handleNumericChange(
-                e.target.value,
-                setCoffeeWeightStr,
-                "coffeeWeight"
-              )
-            }
-            onBlur={() => setCoffeeWeightStr(String(input.coffeeWeight))}
+          <NumericInput
+            value={input.coffeeWeight}
+            onChange={(v) => update({ coffeeWeight: v })}
             min={1}
-            className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 pr-10 text-[#1E0E08] bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow"
+            ariaLabel="Coffee Weight"
+            className="w-full border border-line rounded-xl px-4 py-3 pr-10 text-ink bg-surface text-base focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow"
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#6B4B3E]">
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-ink-muted">
             g
           </span>
         </div>
@@ -83,7 +47,7 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
 
       {/* Ratio */}
       <div>
-        <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
           Ratio
         </label>
         <div className="flex gap-2">
@@ -93,8 +57,8 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
               onClick={() => update({ ratio: r })}
               className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-150 cursor-pointer ${
                 input.ratio === r
-                  ? "bg-[#C4622D] text-white border-[#C4622D] shadow-sm"
-                  : "bg-white text-[#6B4B3E] border-[#D9CBC0] hover:border-[#C4622D] hover:text-[#C4622D]"
+                  ? "bg-accent text-on-accent border-accent shadow-sm"
+                  : "bg-surface text-ink-muted border-line hover:border-accent hover:text-accent"
               }`}
             >
               1:{r}
@@ -105,16 +69,16 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
 
       {/* Brew mode toggle */}
       <div>
-        <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
           Brew Mode
         </label>
-        <div className="flex rounded-xl border border-[#D9CBC0] overflow-hidden bg-white">
+        <div className="flex rounded-xl border border-line overflow-hidden bg-surface">
           <button
             onClick={() => update({ brewMode: "hot" })}
             className={`flex-1 py-3 text-sm font-semibold transition-colors duration-150 cursor-pointer ${
               input.brewMode === "hot"
-                ? "bg-[#C4622D] text-white"
-                : "text-[#6B4B3E] hover:bg-[#FBF0E9]"
+                ? "bg-accent text-on-accent"
+                : "text-ink-muted hover:bg-accent-soft"
             }`}
           >
             Hot
@@ -123,8 +87,8 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
             onClick={() => update({ brewMode: "ice" })}
             className={`flex-1 py-3 text-sm font-semibold transition-colors duration-150 cursor-pointer ${
               input.brewMode === "ice"
-                ? "bg-[#C4622D] text-white"
-                : "text-[#6B4B3E] hover:bg-[#FBF0E9]"
+                ? "bg-accent text-on-accent"
+                : "text-ink-muted hover:bg-accent-soft"
             }`}
           >
             Ice Brew
@@ -135,22 +99,18 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
       {/* Ice weight — only in ice mode */}
       {input.brewMode === "ice" && (
         <div>
-          <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
             Ice Weight
           </label>
           <div className="relative">
-            <input
-              type="number"
-              inputMode="decimal"
-              value={iceWeightStr}
-              onChange={(e) =>
-                handleNumericChange(e.target.value, setIceWeightStr, "iceWeight")
-              }
-              onBlur={() => setIceWeightStr(String(input.iceWeight))}
+            <NumericInput
+              value={input.iceWeight}
+              onChange={(v) => update({ iceWeight: v })}
               min={0}
-              className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 pr-10 text-[#1E0E08] bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow"
+              ariaLabel="Ice Weight"
+              className="w-full border border-line rounded-xl px-4 py-3 pr-10 text-ink bg-surface text-base focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#6B4B3E]">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-ink-muted">
               g
             </span>
           </div>
@@ -159,13 +119,13 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
 
       {/* Grind size */}
       <div>
-        <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
           Grind Size
         </label>
         <select
           value={input.grindSize}
           onChange={(e) => update({ grindSize: e.target.value as GrindSize })}
-          className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 text-[#1E0E08] bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow appearance-none cursor-pointer"
+          className="w-full border border-line rounded-xl px-4 py-3 text-ink bg-surface text-base focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow appearance-none cursor-pointer"
         >
           {GRIND_SIZES.map((g) => (
             <option key={g} value={g}>
@@ -177,7 +137,7 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
 
       {/* Process type */}
       <div>
-        <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
           Process
         </label>
         <select
@@ -185,7 +145,7 @@ export default function BrewForm({ input, onChange }: BrewFormProps) {
           onChange={(e) =>
             update({ processType: e.target.value as ProcessType })
           }
-          className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 text-[#1E0E08] bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow appearance-none cursor-pointer"
+          className="w-full border border-line rounded-xl px-4 py-3 text-ink bg-surface text-base focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow appearance-none cursor-pointer"
         >
           {COFFEE_PROCESSES.map((p) => (
             <option key={p.type} value={p.type}>

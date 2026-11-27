@@ -3,6 +3,7 @@
 import { ExperimentalInput, ExperimentalStep, GrindSize, ProcessType } from "@/lib/types";
 import { getStepStartSeconds } from "@/lib/calculations";
 import { COFFEE_PROCESSES } from "@/constants/coffeeData";
+import NumericInput from "@/components/NumericInput";
 
 interface ExperimentalFormProps {
   value: ExperimentalInput;
@@ -44,25 +45,25 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
   return (
     <div className="space-y-5">
       {/* Banner */}
-      <div className="bg-[#1E0E08]/5 border border-[#1E0E08]/10 rounded-xl px-4 py-3 text-xs text-[#6B4B3E] leading-relaxed">
-        <span className="font-semibold text-[#1E0E08]">Experimental mode</span> — every
+      <div className="bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-xs text-ink-muted leading-relaxed">
+        <span className="font-semibold text-ink">Experimental mode</span> — every
         parameter is yours to set. Step start times auto-stack from each step's duration.
       </div>
 
       {/* Brew mode */}
       <div>
-        <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
           Brew Mode
         </label>
-        <div className="flex rounded-xl border border-[#D9CBC0] overflow-hidden bg-white">
+        <div className="flex rounded-xl border border-line overflow-hidden bg-surface">
           {(["hot", "ice"] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => upd({ brewMode: mode })}
               className={`flex-1 py-3 text-sm font-semibold transition-colors duration-150 cursor-pointer ${
                 value.brewMode === mode
-                  ? "bg-[#C4622D] text-white"
-                  : "text-[#6B4B3E] hover:bg-[#FBF0E9]"
+                  ? "bg-accent text-on-accent"
+                  : "text-ink-muted hover:bg-accent-soft"
               }`}
             >
               {mode === "hot" ? "Hot" : "Ice Brew"}
@@ -112,7 +113,7 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
 
       {/* N-step list */}
       <div>
-        <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-2">
+        <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-2">
           Brew Steps
         </label>
 
@@ -135,7 +136,7 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
 
         <button
           onClick={addStep}
-          className="mt-3 w-full py-2.5 text-sm text-[#6B4B3E] border border-dashed border-[#D9CBC0] rounded-xl hover:bg-[#EDD9C8]/40 hover:border-[#C4622D]/40 transition-colors duration-150 cursor-pointer"
+          className="mt-3 w-full py-2.5 text-sm text-ink-muted border border-dashed border-line rounded-xl hover:bg-line-soft/40 hover:border-accent/40 transition-colors duration-150 cursor-pointer"
         >
           ＋ Add Step
         </button>
@@ -144,13 +145,13 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
       {/* Grind & process */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
             Grind Size
           </label>
           <select
             value={value.grindSize}
             onChange={(e) => upd({ grindSize: e.target.value as GrindSize })}
-            className="w-full border border-[#D9CBC0] rounded-xl px-3 py-3 text-[#1E0E08] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow appearance-none cursor-pointer"
+            className="w-full border border-line rounded-xl px-3 py-3 text-ink bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow appearance-none cursor-pointer"
           >
             {GRIND_SIZES.map((g) => (
               <option key={g} value={g}>
@@ -160,13 +161,13 @@ export default function ExperimentalForm({ value, onChange }: ExperimentalFormPr
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
             Process
           </label>
           <select
             value={value.processType}
             onChange={(e) => upd({ processType: e.target.value as ProcessType })}
-            className="w-full border border-[#D9CBC0] rounded-xl px-3 py-3 text-[#1E0E08] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow appearance-none cursor-pointer"
+            className="w-full border border-line rounded-xl px-3 py-3 text-ink bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow appearance-none cursor-pointer"
           >
             {COFFEE_PROCESSES.map((p) => (
               <option key={p.type} value={p.type}>
@@ -206,27 +207,27 @@ function StepRow({
   };
 
   return (
-    <div className="border border-[#D9CBC0] rounded-xl p-3 bg-white space-y-2">
+    <div className="border border-line rounded-xl p-3 bg-surface space-y-2">
       {/* Step header: number + name input + time range + remove */}
       <div className="flex items-center gap-2">
-        <span className="w-5 h-5 rounded-full bg-[#C4622D] text-white text-xs flex items-center justify-center font-bold flex-shrink-0 select-none">
+        <span className="w-5 h-5 rounded-full bg-accent text-on-accent text-xs flex items-center justify-center font-bold flex-shrink-0 select-none">
           {index + 1}
         </span>
         <input
           type="text"
           value={step.name}
           onChange={(e) => onChange({ name: e.target.value })}
-          className="flex-1 min-w-0 text-sm font-semibold text-[#1E0E08] bg-transparent focus:outline-none focus:bg-[#FBF0E9] rounded px-1 -mx-1 transition-colors"
+          className="flex-1 min-w-0 text-sm font-semibold text-ink bg-transparent focus:outline-none focus:bg-accent-soft rounded px-1 -mx-1 transition-colors"
           placeholder="Step name"
           aria-label={`Step ${index + 1} name`}
         />
-        <span className="text-xs text-[#A07060] tabular-nums flex-shrink-0">
+        <span className="text-xs text-ink-subtle tabular-nums flex-shrink-0">
           {fmtTime(startSec)} → {fmtTime(endSec)}
         </span>
         {canRemove && (
           <button
             onClick={onRemove}
-            className="w-5 h-5 flex items-center justify-center text-[#C4622D]/40 hover:text-[#C4622D] hover:bg-[#FBF0E9] rounded-full transition-colors cursor-pointer flex-shrink-0 text-xs"
+            className="w-5 h-5 flex items-center justify-center text-accent/40 hover:text-accent hover:bg-accent-soft rounded-full transition-colors cursor-pointer flex-shrink-0 text-xs"
             aria-label={`Remove step ${index + 1}`}
           >
             ✕
@@ -237,32 +238,28 @@ function StepRow({
       {/* Water + Duration inputs */}
       <div className="grid grid-cols-2 gap-2">
         <div className="relative">
-          <input
-            type="number"
-            inputMode="decimal"
+          <NumericInput
             value={step.waterAmount}
             min={0}
-            onChange={(e) => onChange({ waterAmount: Number(e.target.value) })}
-            className="w-full border border-[#D9CBC0] rounded-lg px-3 py-2 pr-9 text-[#1E0E08] bg-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
+            onChange={(v) => onChange({ waterAmount: v })}
+            className="w-full border border-line rounded-lg px-3 py-2 pr-9 text-ink bg-surface/60 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
             placeholder="Water"
-            aria-label={`Step ${index + 1} water amount`}
+            ariaLabel={`Step ${index + 1} water amount`}
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A07060] pointer-events-none">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-subtle pointer-events-none">
             ml
           </span>
         </div>
         <div className="relative">
-          <input
-            type="number"
-            inputMode="decimal"
+          <NumericInput
             value={step.duration}
             min={1}
-            onChange={(e) => onChange({ duration: Math.max(1, Number(e.target.value)) })}
-            className="w-full border border-[#D9CBC0] rounded-lg px-3 py-2 pr-9 text-[#1E0E08] bg-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent"
+            onChange={(v) => onChange({ duration: v })}
+            className="w-full border border-line rounded-lg px-3 py-2 pr-9 text-ink bg-surface/60 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
             placeholder="Duration"
-            aria-label={`Step ${index + 1} duration`}
+            ariaLabel={`Step ${index + 1} duration`}
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A07060] pointer-events-none">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-subtle pointer-events-none">
             s
           </span>
         </div>
@@ -288,20 +285,19 @@ function NumField({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-[#6B4B3E] uppercase tracking-wider mb-1.5">
+      <label className="block text-xs font-medium text-ink-muted uppercase tracking-wider mb-1.5">
         {label}
       </label>
       <div className="relative">
-        <input
-          type="number"
-          inputMode="decimal"
+        <NumericInput
           value={value}
           min={min}
           max={max}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="w-full border border-[#D9CBC0] rounded-xl px-4 py-3 pr-10 text-[#1E0E08] bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#C4622D] focus:border-transparent transition-shadow"
+          onChange={onChange}
+          ariaLabel={label}
+          className="w-full border border-line rounded-xl px-4 py-3 pr-10 text-ink bg-surface text-base focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow"
         />
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#6B4B3E] pointer-events-none">
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-ink-muted pointer-events-none">
           {unit}
         </span>
       </div>
